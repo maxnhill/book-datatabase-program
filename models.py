@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 #create a model
 engine = create_engine('sqlite:///books.db', echo = False)
-Session = sessionmaker(bind= engine)
+Session = sessionmaker(bind = engine)
 session = Session()
 Base = declarative_base()
 
