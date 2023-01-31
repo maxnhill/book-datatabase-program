@@ -81,7 +81,7 @@ def add_csv():
     with open('suggested_books.csv') as csvfile:
         data = csv.reader(csvfile)
         for row in data:
-            book_in_db = session.query(Book).filter(Book.title ==row[0]).one_or_none
+            book_in_db = session.query(Book).filter(Book.title ==row[0]).one_or_none()
             if book_in_db == None:
                 title = row[0]
                 author = row[1]
@@ -122,8 +122,9 @@ def app():
             time.sleep(1.5)
 
         elif choice == '2':
-            #view all books
-            pass
+            for book in session.query(Book):
+                print(f'{book.id} | {book.title} | {book.author}')
+            input( "Press ENTER to return to the main menu")
         elif choice == '3':
             #Search for book
             pass
@@ -139,7 +140,7 @@ def app():
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
     add_csv()
-    for book in session.query(Book):
-        print(book) 
+    app()
+    
     
     
