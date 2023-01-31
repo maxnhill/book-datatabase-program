@@ -1,8 +1,9 @@
 #import models file
 from models import (Base, session, Book, engine)
 
-import csv
 import datetime
+import csv
+import time
 
 # Main Menu- add, search, anaylsis, exit, view
 
@@ -42,15 +43,38 @@ def clean_date(date_str):
     'June', 'July', 'August', 'September', 'October', 
     'November', 'December']
     split_date = date_str.split(' ')
-    month = int(months.index(split_date[0]) + 1)
-    day = int(split_date[1].replace(",", " "))
-    year = int(split_date[2])
-    return datetime.date(year, month, day)
+    try:
+        month = int(months.index(split_date[0]) + 1)
+        day = int(split_date[1].split(',')[0])
+        year = int(split_date[2])
+        return_date = datetime.date(year, month, day)
+    
+    except ValueError:
+        input( ''' 
+            \n******** DATE ERROR *********
+            \r The Date format should inlcude a valide Month Day, Year from the past
+            \rExample: January 13, 2003
+            \rPress ENTER to try again
+            ********************************* ''')
+        return
+
+    else:
+        return return_date
 
 def clean_price(price_str):
-    price_float = float(price_str)
-    price = int(price_float*100)
-    return price 
+    try:
+        price_float = float(price_str)
+        price = int(price_float*100)
+    except ValueError:
+        input( ''' 
+            \n******** Price ERROR *********
+            \r The Price format should inlcude a decimal point with no special characters
+            \rExample: 29.99
+            \rPress ENTER to try again
+            \r*******************************''')
+        return
+    else:
+        return price 
 
 
 def add_csv():
@@ -60,13 +84,14 @@ def add_csv():
             book_in_db = session.query(Book).filter(Book.title ==row[0]).one_or_none
             if book_in_db == None:
                 title = row[0]
-                author = [1]
-                date = clean_date(row[2])
+                author = row[1]
+                date = (clean_date(row[2]))
                 price = clean_price(row[3])
                 new_book = Book( title = title, author = author, 
                             published_date =  date, price = price)
                 session.add(new_book)
         session.commit()
+     
 
 
 
@@ -75,8 +100,27 @@ def app():
     while app_running:
         choice = menu()
         if choice == '1':
-            #add book
-            pass
+            title = input('Title: ')
+            author = input('Author: ')
+            date_error = True
+            while date_error:
+                date = input('Publish Date(Ex: October 25, 2017): ')
+                date = clean_date(date)
+                if type(date) == datetime.date:
+                    date_error = False
+            price_error = True
+            while price_error:
+                price = input ('Price (Example: 29.99): ')
+                price = clean_price(price)
+                if type(price) == int:
+                    price_error = False
+            added_book =Book( title = title, author = author, 
+                            published_date =  date, price = price)
+            session.add(added_book)
+            session.commit()
+            print('Book Added!')
+            time.sleep(1.5)
+
         elif choice == '2':
             #view all books
             pass
@@ -94,6 +138,8 @@ def app():
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
-    #add_csv()
+    add_csv()
     for book in session.query(Book):
-        print(book)
+        print(book) 
+    
+    
