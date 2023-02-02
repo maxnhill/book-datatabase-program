@@ -24,9 +24,11 @@ def menu():
 
         else:
             input ('''
-                  \rPlease choose one of the optins above.
+                  \rPlease choose one of the options above.
                   \rA number between 1-5.
-                  \rpress ENTER to try again.''')
+                  \rpress ENTER to try again.
+
+                  ''')
 
 
 def submenu():
@@ -64,7 +66,9 @@ def clean_date(date_str):
             \rThe Date format should inlcude a valid Month Day, Year from the past
             \rExample: January 13, 2003
             \rPress ENTER to try again
-            \r********************************* ''')
+            \r********************************* 
+            
+            ''')
         return
 
     else:
@@ -122,8 +126,6 @@ def edit_check(column_name, current_value):
                 changes = clean_date(changes)
                 if type(changes) == datetime.date:
                     return changes
-
-            
             elif column_name == 'Price':
                 changes = clean_price(changes)
                 if type(changes) == int:
@@ -224,9 +226,27 @@ def app():
                  
         elif choice == '4':
             #Book Analysis:
-            pass
-
+            oldest_book = session.query(Book).order_by(Book.published_date).first()
+            newest_book = session.query(Book).order_by(Book.published_date.desc()).first()
+            total_books = session.query(Book).count()
+            python_books = session.query(Book).filter(Book.title.like('%Python%')).count()
+            within_five = []
+            for book in session.query(Book).filter(Book.published_date.between('2018-01-01', '2023-12-31')):
+                within_five.append(book.title)     
+            time.sleep(1.5)      
+            print(f''' 
+            \n***** BOOK ANALYSIS *****
+            \rOldest Book: {oldest_book.title} | {oldest_book.published_date}
+            \rNewest Book: {newest_book.title} | {newest_book.published_date}
+            \rTotal Books: {total_books}
+            \rBooks with Python in the title: {python_books}
+            \rBooks Published within last five years: {len(within_five)}''')
+            time.sleep(1.5)
+            print('\n')  
+            input('Press Enter to continue ')
+            
         else: 
+            time.sleep(1.5)
             print("Goodbye")
             app_running = False
 
