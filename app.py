@@ -76,6 +76,27 @@ def clean_price(price_str):
     else:
         return price 
 
+def clean_id(id_str, options):
+    try:
+        book_id = int(id_str)
+    except:
+        input( f''' 
+            \n******** Id ERROR *********
+            \rId must be a number.
+            \rPress ENTER to try again
+            \r***************************''')
+        return
+    else:
+        if book_id in options:
+            return book_id
+        else:
+            input( ''' 
+            \n******** Id ERROR *********
+            \r Options are: {my_options}.
+            \rPress ENTER to try again
+            \r***************************''')
+
+
 
 def add_csv():
     with open('suggested_books.csv') as csvfile:
@@ -93,12 +114,11 @@ def add_csv():
         session.commit()
      
 
-
-
 def app():
     app_running = True
     while app_running:
         choice = menu()
+
         if choice == '1':
             title = input('Title: ')
             author = input('Author: ')
@@ -118,6 +138,7 @@ def app():
                             published_date =  date, price = price)
             session.add(added_book)
             session.commit()
+            time.sleep(1.5)
             print('Book Added!')
             time.sleep(1.5)
 
@@ -125,12 +146,36 @@ def app():
             for book in session.query(Book):
                 print(f'{book.id} | {book.title} | {book.author}')
             input( "Press ENTER to return to the main menu")
+
         elif choice == '3':
             #Search for book
-            pass
+            id_options = []
+            for book in session.query(Book):
+                id_options.append(book.id)
+            id_error = True
+            while id_error:
+                id_choice = input(f'''
+                \nId options: {id_options}
+                \rBook id: ''')
+
+                id_choice = clean_id(id_choice, id_options)
+                if type(id_choice) == int:
+                    id_error = False
+            the_book = session.query(Book).filter(Book.id == id_choice).first()
+            input(f'''
+                  \n{the_book.title} by {the_book.author}
+                  \rPublished: {the_book.published_date}
+                  \rPrice: $ {the_book.price /100} 
+                  
+                  \rPress ENTER to continue   
+                  \r''')
+
+
+               
         elif choice == '4':
             #Book Analysis:
             pass
+
         else: 
             print("Goodbye")
             app_running = False
